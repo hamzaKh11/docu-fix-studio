@@ -9,11 +9,11 @@ interface PreviewSectionProps {
 const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
   if (!cvResponse && !formData.name) {
     return (
-      <div className="p-12 rounded-2xl border-2 border-dashed border-border bg-card flex flex-col items-center justify-center min-h-[600px]">
-        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mb-4">
-          <FileText className="w-10 h-10 text-muted-foreground" />
+      <div className="p-12 rounded-xl border-2 border-dashed border-border bg-card flex flex-col items-center justify-center min-h-[600px] shadow-soft">
+        <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center mb-4">
+          <FileText className="w-10 h-10 text-primary" />
         </div>
-        <h3 className="font-heading text-xl font-semibold mb-2 text-card-foreground">
+        <h3 className="text-xl font-bold mb-2 text-card-foreground">
           Preview Your CV
         </h3>
         <p className="text-sm text-muted-foreground text-center max-w-sm">
@@ -26,9 +26,9 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
   // If we have a Google Docs ID, embed the viewer
   if (cvResponse?.doc_id) {
     return (
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/30">
-          <h3 className="font-heading text-lg font-semibold text-card-foreground">
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-soft">
+        <div className="p-4 border-b border-border bg-secondary">
+          <h3 className="text-lg font-bold text-card-foreground">
             Google Docs Preview
           </h3>
         </div>
@@ -44,9 +44,9 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
   // If we have HTML preview
   if (cvResponse?.html_preview) {
     return (
-      <div className="rounded-2xl border border-border bg-card overflow-hidden">
-        <div className="p-4 border-b border-border bg-muted/30">
-          <h3 className="font-heading text-lg font-semibold text-card-foreground">
+      <div className="rounded-xl border border-border bg-card overflow-hidden shadow-soft">
+        <div className="p-4 border-b border-border bg-secondary">
+          <h3 className="text-lg font-bold text-card-foreground">
             Preview
           </h3>
         </div>
@@ -60,16 +60,16 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
   // Fallback: Show a simple preview based on form data
   return (
-    <div className="rounded-2xl border border-border bg-card overflow-hidden">
-      <div className="p-4 border-b border-border bg-muted/30">
-        <h3 className="font-heading text-lg font-semibold text-card-foreground">
+    <div className="rounded-xl border border-border bg-card overflow-hidden shadow-soft">
+      <div className="p-4 border-b border-border bg-secondary">
+        <h3 className="text-lg font-bold text-card-foreground">
           Live Preview
         </h3>
       </div>
       <div className="p-8 space-y-6">
         {formData.name && (
           <div>
-            <h1 className="font-heading text-3xl font-bold text-card-foreground mb-2">
+            <h1 className="text-3xl font-bold text-card-foreground mb-2">
               {formData.name}
             </h1>
             <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -82,7 +82,7 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
         {formData.targetRole && (
           <div>
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-2">
+            <h2 className="text-lg font-bold text-card-foreground mb-2">
               Target Role
             </h2>
             <p className="text-foreground">{formData.targetRole}</p>
@@ -91,7 +91,7 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
         {formData.summary && (
           <div>
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-2">
+            <h2 className="text-lg font-bold text-card-foreground mb-2">
               Professional Summary
             </h2>
             <p className="text-foreground">{formData.summary}</p>
@@ -100,7 +100,7 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
         {formData.experience.length > 0 && (
           <div>
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-3">
+            <h2 className="text-lg font-bold text-card-foreground mb-3">
               Experience
             </h2>
             <div className="space-y-4">
@@ -120,7 +120,7 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
         {formData.education.length > 0 && (
           <div>
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-3">
+            <h2 className="text-lg font-bold text-card-foreground mb-3">
               Education
             </h2>
             <div className="space-y-3">
@@ -139,14 +139,14 @@ const PreviewSection = ({ cvResponse, formData }: PreviewSectionProps) => {
 
         {formData.skills.length > 0 && formData.skills[0] !== "" && (
           <div>
-            <h2 className="font-heading text-lg font-semibold text-card-foreground mb-2">
+            <h2 className="text-lg font-bold text-card-foreground mb-2">
               Skills
             </h2>
             <div className="flex flex-wrap gap-2">
               {formData.skills.map((skill, idx) => (
                 <span 
                   key={idx}
-                  className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm"
+                  className="px-3 py-1 rounded-full bg-secondary text-primary text-sm font-medium"
                 >
                   {skill}
                 </span>

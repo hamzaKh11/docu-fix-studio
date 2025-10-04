@@ -61,9 +61,9 @@ const FormSection = ({ formData, setFormData }: FormSectionProps) => {
   };
 
   return (
-    <div className="space-y-6 p-6 rounded-2xl border border-border bg-card">
+    <div className="space-y-6 p-6 rounded-xl border border-border bg-card shadow-soft">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="font-heading text-2xl font-bold text-card-foreground">CV Information</h2>
+        <h2 className="text-2xl font-bold text-card-foreground">CV Information</h2>
         <Select value={formData.language} onValueChange={(value: 'en' | 'fr' | 'ar') => updateField("language", value)}>
           <SelectTrigger className="w-32">
             <SelectValue />
@@ -146,7 +146,7 @@ const FormSection = ({ formData, setFormData }: FormSectionProps) => {
       {/* Experience */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-lg font-semibold text-card-foreground">Experience</h3>
+          <h3 className="text-lg font-bold text-card-foreground">Experience</h3>
           <Button type="button" onClick={addExperience} size="sm" variant="outline">
             <Plus className="w-4 h-4 mr-2" />
             Add
@@ -206,7 +206,7 @@ const FormSection = ({ formData, setFormData }: FormSectionProps) => {
       {/* Education */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="font-heading text-lg font-semibold text-card-foreground">Education</h3>
+          <h3 className="text-lg font-bold text-card-foreground">Education</h3>
           <Button type="button" onClick={addEducation} size="sm" variant="outline">
             <Plus className="w-4 h-4 mr-2" />
             Add

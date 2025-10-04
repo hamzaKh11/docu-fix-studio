@@ -65,10 +65,10 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary via-accent/20 to-secondary/20 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[linear-gradient(180deg,_hsl(0_0%_100%)_0%,_hsl(232_100%_97%)_100%)] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="mb-8">
-          <Button variant="ghost" size="sm" asChild className="text-primary-foreground">
+          <Button variant="ghost" size="sm" asChild>
             <Link to="/">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Home
@@ -76,9 +76,9 @@ const Auth = () => {
           </Button>
         </div>
 
-        <div className="bg-card rounded-2xl border border-border p-8 shadow-xl">
+        <div className="bg-card rounded-xl border border-border p-8 shadow-soft-lg">
           <div className="text-center mb-8">
-            <h1 className="font-heading text-3xl font-bold mb-2 text-card-foreground">
+            <h1 className="text-3xl font-bold mb-2 text-accent">
               Welcome to CVCraft
             </h1>
             <p className="text-muted-foreground">
@@ -120,7 +120,7 @@ const Auth = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white font-heading font-semibold"
+                  className="w-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold shadow-soft"
                   disabled={isLoading}
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
@@ -160,7 +160,7 @@ const Auth = () => {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white font-heading font-semibold"
+                  className="w-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold shadow-soft"
                   disabled={isLoading}
                 >
                   {isLoading ? "Creating Account..." : "Create Account"}
@@ -172,16 +172,16 @@ const Auth = () => {
           <div className="mt-6 text-center text-sm text-muted-foreground">
             <p>By continuing, you agree to our</p>
             <div className="flex items-center justify-center gap-2 mt-1">
-              <a href="#" className="text-accent hover:underline">Terms of Service</a>
+              <a href="#" className="text-primary hover:underline">Terms of Service</a>
               <span>and</span>
-              <a href="#" className="text-accent hover:underline">Privacy Policy</a>
+              <a href="#" className="text-primary hover:underline">Privacy Policy</a>
             </div>
           </div>
         </div>
 
         {/* TODO: Add Stripe billing integration skeleton */}
         <div className="mt-6 text-center">
-          <p className="text-sm text-primary-foreground/60">
+          <p className="text-sm text-muted-foreground">
             Secure authentication powered by Lovable Cloud
           </p>
         </div>

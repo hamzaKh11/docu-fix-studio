@@ -56,7 +56,7 @@ const ActionBar = ({ cvResponse }: ActionBarProps) => {
   };
 
   return (
-    <div className="sticky top-20 z-40 border-b border-border bg-card/80 backdrop-blur-sm">
+    <div className="sticky top-20 z-40 border-b border-border bg-background shadow-soft">
       <div className="container mx-auto px-4 py-3 flex items-center justify-end gap-3">
         <Dialog>
           <DialogTrigger asChild>
@@ -88,7 +88,7 @@ const ActionBar = ({ cvResponse }: ActionBarProps) => {
 
         <Button 
           onClick={handleDownloadPDF}
-          className="bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white"
+          className="bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white shadow-soft"
           size="sm"
         >
           <Download className="w-4 h-4 mr-2" />

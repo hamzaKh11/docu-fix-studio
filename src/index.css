@@ -8,48 +8,50 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Base colors - CVCraft design system */
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* CVCraft Design System - Refined */
+    --background: 0 0% 100%;
+    --foreground: 243 63% 12%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 243 63% 12%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 243 63% 12%;
 
-    /* Primary: Deep Indigo */
-    --primary: 222 47% 11%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary: Vivid Indigo-Blue #5B6CFE */
+    --primary: 232 98% 68%;
+    --primary-foreground: 0 0% 100%;
     
-    /* Secondary: Electric Cyan */
-    --secondary: 187 95% 43%;
-    --secondary-foreground: 0 0% 100%;
+    /* Secondary: Soft Lavender #F1F3FF */
+    --secondary: 232 100% 97%;
+    --secondary-foreground: 243 63% 12%;
 
-    /* Accent: Soft Violet */
-    --accent: 258 82% 57%;
+    /* Accent: Deep Navy #0B0A33 */
+    --accent: 243 63% 12%;
     --accent-foreground: 0 0% 100%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Neutral Dark #1C1C28 */
+    --neutral-dark: 240 20% 13%;
+
+    --muted: 232 100% 97%;
+    --muted-foreground: 240 5% 45%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 258 82% 57%;
+    --border: 232 30% 92%;
+    --input: 232 30% 92%;
+    --ring: 232 98% 68%;
 
     --radius: 0.75rem;
     
-    /* Custom gradients */
-    --gradient-primary: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(258 82% 57%) 100%);
-    --gradient-secondary: linear-gradient(135deg, hsl(187 95% 43%) 0%, hsl(258 82% 57%) 100%);
-    --gradient-hero: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(258 82% 40%) 50%, hsl(187 95% 43%) 100%);
+    /* Gradient Accent: #5B6CFE to #7A5CFA */
+    --gradient-cta: linear-gradient(90deg, hsl(232 98% 68%) 0%, hsl(253 95% 67%) 100%);
+    --gradient-subtle: linear-gradient(180deg, hsl(0 0% 100%) 0%, hsl(232 100% 97%) 100%);
     
-    /* Shadows */
-    --shadow-glow: 0 0 40px hsl(258 82% 57% / 0.3);
-    --shadow-elegant: 0 10px 30px -10px hsl(222 47% 11% / 0.3);
+    /* Shadows - Soft & Elegant */
+    --shadow-soft-lg: 0 10px 30px -5px hsl(232 98% 68% / 0.15);
+    --shadow-soft: 0 2px 8px -2px hsl(243 63% 12% / 0.08);
     
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -72,33 +74,35 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 240 20% 13%;
+    --foreground: 0 0% 100%;
 
-    --card: 222 47% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 243 63% 12%;
+    --card-foreground: 0 0% 100%;
 
-    --popover: 222 47% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 243 63% 12%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222 47% 11%;
+    --primary: 232 98% 68%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 187 95% 43%;
+    --secondary: 232 30% 20%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 258 82% 57%;
+    --accent: 243 63% 12%;
     --accent-foreground: 0 0% 100%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 65%;
+    --neutral-dark: 240 20% 13%;
+
+    --muted: 240 10% 20%;
+    --muted-foreground: 240 5% 65%;
 
     --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 217 33% 18%;
-    --input: 217 33% 18%;
-    --ring: 258 82% 57%;
+    --border: 240 10% 20%;
+    --input: 240 10% 20%;
+    --ring: 232 98% 68%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;

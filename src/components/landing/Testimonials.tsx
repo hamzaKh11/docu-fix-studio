@@ -29,10 +29,10 @@ const testimonials = [
 
 const Testimonials = () => {
   return (
-    <section className="py-24 bg-muted/30" id="testimonials">
+    <section className="py-24 bg-secondary" id="testimonials">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto text-center mb-16 animate-fade-in">
-          <h2 className="font-heading text-4xl md:text-5xl font-bold mb-4 text-foreground">
+        <div className="max-w-3xl mx-auto text-center mb-16 animate-slide-up">
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-accent">
             Loved by Job Seekers Worldwide
           </h2>
           <p className="text-lg text-muted-foreground">
@@ -40,16 +40,16 @@ const Testimonials = () => {
           </p>
         </div>
         
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
             <div 
               key={index}
-              className="p-6 rounded-2xl bg-card border border-border hover:border-accent/50 transition-all hover:shadow-lg animate-fade-in"
-              style={{ animationDelay: `${index * 100}ms` }}
+              className="p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all hover:shadow-soft-lg animate-fade-in"
+              style={{ animationDelay: `${index * 50}ms` }}
             >
               <div className="flex gap-1 mb-4">
                 {[...Array(testimonial.rating)].map((_, i) => (
-                  <Star key={i} className="w-5 h-5 fill-accent text-accent" />
+                  <Star key={i} className="w-5 h-5 fill-primary text-primary" />
                 ))}
               </div>
               
@@ -58,11 +58,11 @@ const Testimonials = () => {
               </p>
               
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-secondary to-accent flex items-center justify-center text-white font-heading font-bold">
+                <div className="w-12 h-12 rounded-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] flex items-center justify-center text-white font-bold">
                   {testimonial.avatar}
                 </div>
                 <div>
-                  <div className="font-heading font-semibold text-card-foreground">
+                  <div className="font-semibold text-card-foreground">
                     {testimonial.name}
                   </div>
                   <div className="text-sm text-muted-foreground">

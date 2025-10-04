@@ -43,7 +43,7 @@ const UploadSection = ({ uploadedFile, setUploadedFile }: UploadSectionProps) =>
   };
 
   return (
-    <div className="p-6 rounded-2xl border-2 border-dashed border-border bg-card hover:border-accent/50 transition-colors">
+    <div className="p-6 rounded-xl border-2 border-dashed border-border bg-card hover:border-primary/30 transition-colors shadow-soft">
       <input
         ref={fileInputRef}
         type="file"
@@ -58,10 +58,10 @@ const UploadSection = ({ uploadedFile, setUploadedFile }: UploadSectionProps) =>
           htmlFor="cv-upload"
           className="flex flex-col items-center justify-center cursor-pointer py-8"
         >
-          <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mb-4">
-            <Upload className="w-8 h-8 text-accent" />
+          <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
+            <Upload className="w-8 h-8 text-primary" />
           </div>
-          <h3 className="font-heading text-xl font-semibold mb-2 text-card-foreground">
+          <h3 className="text-xl font-bold mb-2 text-card-foreground">
             Upload Your Current CV
           </h3>
           <p className="text-sm text-muted-foreground text-center mb-4">
@@ -74,8 +74,8 @@ const UploadSection = ({ uploadedFile, setUploadedFile }: UploadSectionProps) =>
       ) : (
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-              <Upload className="w-6 h-6 text-accent" />
+            <div className="w-12 h-12 rounded-lg bg-secondary flex items-center justify-center">
+              <Upload className="w-6 h-6 text-primary" />
             </div>
             <div>
               <p className="font-medium text-card-foreground">{uploadedFile.name}</p>

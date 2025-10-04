@@ -73,7 +73,7 @@ const CVApp = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+      <header className="border-b border-border bg-background sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild>
@@ -82,7 +82,7 @@ const CVApp = () => {
                 Back
               </Link>
             </Button>
-            <h1 className="font-heading text-2xl font-bold">CVCraft</h1>
+            <h1 className="text-2xl font-bold text-accent">CVCraft</h1>
           </div>
           
           <div className="flex items-center gap-4">
@@ -114,7 +114,7 @@ const CVApp = () => {
             <Button 
               onClick={handleSubmit}
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-secondary to-accent hover:opacity-90 text-white font-heading font-semibold text-lg py-6"
+              className="w-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold text-lg py-6 shadow-soft-lg transition-all hover:scale-[1.02]"
             >
               {isLoading ? "Processing..." : "Generate ATS-Friendly CV"}
             </Button>
