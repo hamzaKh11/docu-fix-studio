@@ -1,24 +1,40 @@
-# CVCraft - ATS-Friendly Resume Builder
+# CVCraft - Production-Ready ATS CV Generator
 
-Transform messy CVs into professional, ATS-friendly Google Docs and downloadable PDFs.
+CVCraft is a professional SaaS application that transforms messy CVs into ATS-friendly Google Docs and downloadable PDFs. Built with React, TypeScript, Tailwind CSS, and powered by Lovable Cloud for authentication, database, and storage.
 
-## Features
+## 🎯 Features
 
-- 🚀 **Smart CV Parsing**: Upload PDF, DOCX, or images
-- 🤖 **ATS Optimization**: Automatically format for Applicant Tracking Systems
-- 📄 **Export Options**: Download as PDF or get shareable Google Docs links
-- 🌍 **Multi-Language**: Support for English, French, and Arabic
-- 🔒 **Secure**: End-to-end encrypted data handling
-- ✨ **AI Enhancement**: Intelligent suggestions for resume improvement
+- **Smart CV Input**: Upload existing CV (PDF/DOCX/images) with auto-parsing OR create from scratch
+- **ATS Optimization**: AI-powered CV generation using model templates from ex-FAANG engineers
+- **Two-Pane Interface**: Real-time preview while editing
+- **Multi-language Support**: English, French, Arabic
+- **Cloud Storage**: Secure file storage with Lovable Cloud
+- **Authentication**: Email/password + Google OAuth
+- **Export Options**: Download as PDF or edit in Google Docs
+- **ATS Scoring**: Get instant feedback on CV optimization
+- **AI Recommendations**: Actionable suggestions to improve your CV
 
-## Tech Stack
+## 🏗️ Tech Stack
 
-- **Frontend**: React, TypeScript, Tailwind CSS, Vite
-- **UI Components**: shadcn/ui
-- **Backend Integration**: n8n webhooks
-- **Authentication**: Lovable Cloud / Supabase
-- **Payment**: Stripe
-- **Fonts**: Plus Jakarta Sans, Inter
+### Frontend
+- **React 18** with TypeScript
+- **Vite** for blazing-fast development
+- **Tailwind CSS** with custom design tokens
+- **Framer Motion** for animations
+- **shadcn/ui** for UI components
+- **React Hook Form** + **Zod** for validation
+
+### Backend (Lovable Cloud)
+- **Authentication**: Email/password + Google OAuth
+- **Database**: PostgreSQL with Row Level Security (RLS)
+- **Storage**: Secure file storage buckets
+- **Edge Functions**: Serverless functions (optional)
+
+### External Integrations
+- **n8n**: Workflow automation for CV processing
+- **Google Docs API**: Document generation
+- **Google Drive API**: PDF export
+- **Lovable AI** or **Affinda**: OCR and CV parsing
 
 ## Getting Started
 

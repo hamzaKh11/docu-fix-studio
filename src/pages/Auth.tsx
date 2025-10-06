@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -16,15 +17,17 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Integrate Lovable Cloud Auth or Supabase
-      // const { data, error } = await supabase.auth.signInWithPassword({
-      //   email,
-      //   password,
-      // });
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
       
-      console.log("Sign in attempt:", { email });
+      if (error) {
+        alert(error.message);
+        return;
+      }
       
-      // Track signup event
+      // Track signin event
       if (window.plausible) {
         window.plausible('signin_completed');
       }
@@ -41,16 +44,21 @@ const Auth = () => {
     setIsLoading(true);
     
     try {
-      // TODO: Integrate Lovable Cloud Auth or Supabase
-      // const { data, error } = await supabase.auth.signUp({
-      //   email,
-      //   password,
-      //   options: {
-      //     emailRedirectTo: `${window.location.origin}/app`,
-      //   },
-      // });
+      const redirectUrl = `${window.location.origin}/app`;
+      const { error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: redirectUrl
+        },
+      });
       
-      console.log("Sign up attempt:", { email });
+      if (error) {
+        alert(error.message);
+        return;
+      }
+      
+      alert('Account created successfully! Redirecting to app...');
       
       // Track signup event
       if (window.plausible) {
@@ -179,7 +187,6 @@ const Auth = () => {
           </div>
         </div>
 
-        {/* TODO: Add Stripe billing integration skeleton */}
         <div className="mt-6 text-center">
           <p className="text-sm text-muted-foreground">
             Secure authentication powered by Lovable Cloud
