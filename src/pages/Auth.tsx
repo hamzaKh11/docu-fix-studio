@@ -3,14 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Chrome } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const { toast } = useToast();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,17 +25,30 @@ const Auth = () => {
       });
       
       if (error) {
-        alert(error.message);
+        toast({
+          title: "Sign in failed",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
       
-      // Track signin event
+      toast({
+        title: "Welcome back",
+        description: "You have signed in successfully.",
+        variant: "success",
+      });
+      
       if (window.plausible) {
         window.plausible('signin_completed');
       }
     } catch (error) {
       console.error("Sign in error:", error);
-      alert("Failed to sign in. Please try again.");
+      toast({
+        title: "Sign in error",
+        description: "Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -45,7 +60,7 @@ const Auth = () => {
     
     try {
       const redirectUrl = `${window.location.origin}/app`;
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -54,19 +69,51 @@ const Auth = () => {
       });
       
       if (error) {
-        alert(error.message);
+        toast({
+          title: "Sign up failed",
+          description: error.message,
+          variant: "destructive",
+        });
         return;
       }
       
-      alert('Account created successfully! Redirecting to app...');
+      toast({
+        title: "Account created",
+        description: data.user?.email ? `Verification sent to ${data.user.email}` : "Check your email to verify.",
+        variant: "success",
+      });
       
-      // Track signup event
       if (window.plausible) {
         window.plausible('signup_completed');
       }
     } catch (error) {
       console.error("Sign up error:", error);
-      alert("Failed to sign up. Please try again.");
+      toast({
+        title: "Sign up error",
+        description: "Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogle = async () => {
+    setIsLoading(true);
+    try {
+      const redirectTo = `${window.location.origin}/app`;
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo }
+      });
+      if (error) {
+        toast({ title: 'Google sign-in failed', description: error.message, variant: 'destructive' });
+        return;
+      }
+      // Supabase will redirect; show feedback briefly
+      toast({ title: 'Redirecting to Google…', description: 'Secure authentication in progress.', variant: 'success' });
+    } catch (e) {
+      toast({ title: 'Google sign-in error', description: 'Please try again.', variant: 'destructive' });
     } finally {
       setIsLoading(false);
     }
@@ -133,6 +180,9 @@ const Auth = () => {
                 >
                   {isLoading ? "Signing In..." : "Sign In"}
                 </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={handleGoogle} disabled={isLoading}>
+                <Chrome className="w-4 h-4 mr-2" /> Continue with Google
+              </Button>
               </form>
             </TabsContent>
 
@@ -173,6 +223,9 @@ const Auth = () => {
                 >
                   {isLoading ? "Creating Account..." : "Create Account"}
                 </Button>
+              <Button type="button" variant="outline" className="w-full" onClick={handleGoogle} disabled={isLoading}>
+                <Chrome className="w-4 h-4 mr-2" /> Continue with Google
+              </Button>
               </form>
             </TabsContent>
           </Tabs>

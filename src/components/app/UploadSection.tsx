@@ -67,9 +67,9 @@ const UploadSection = ({ uploadedFile, setUploadedFile }: UploadSectionProps) =>
           <p className="text-sm text-muted-foreground text-center mb-4">
             PDF, DOCX, or Image (Max 10MB)
           </p>
-          <Button type="button" variant="outline">
+          {/* <Button type="button" variant="outline">
             Choose File
-          </Button>
+          </Button> */}
         </label>
       ) : (
         <div className="flex items-center justify-between">

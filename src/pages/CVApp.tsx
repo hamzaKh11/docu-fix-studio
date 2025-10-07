@@ -7,8 +7,12 @@ import FormSection from "@/components/app/FormSection";
 import PreviewSection from "@/components/app/PreviewSection";
 import ActionBar from "@/components/app/ActionBar";
 import { CVFormData, CVResponse } from "@/types/cv";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 const CVApp = () => {
+  const { user, signOut } = useAuth();
+  const { toast } = useToast();
   const [formData, setFormData] = useState<CVFormData>({
     name: "",
     phone: "",
@@ -42,8 +46,15 @@ const CVApp = () => {
       // Add all form fields as JSON
       formDataToSend.append("data", JSON.stringify(formData));
       
-      // TODO: Replace with actual n8n webhook URL
-      const webhookUrl = "https://YOUR_N8N/webhook/cvcrafter";
+      const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL as string | undefined;
+      if (!webhookUrl) {
+        toast({
+          title: "Missing webhook",
+          description: "VITE_N8N_WEBHOOK_URL is not configured.",
+          variant: "destructive",
+        });
+        return;
+      }
       
       const response = await fetch(webhookUrl, {
         method: "POST",
@@ -51,11 +62,13 @@ const CVApp = () => {
       });
       
       if (!response.ok) {
-        throw new Error("Failed to process CV");
+        const text = await response.text().catch(() => "");
+        throw new Error(text || "Failed to process CV");
       }
       
       const result: CVResponse = await response.json();
       setCvResponse(result);
+      toast({ title: "CV ready", description: "Your ATS-friendly CV has been generated.", variant: "success" });
       
       // Track event (Plausible/GA4 integration)
       if (window.plausible) {
@@ -63,8 +76,7 @@ const CVApp = () => {
       }
     } catch (error) {
       console.error("Error processing CV:", error);
-      // TODO: Integrate Sentry for error reporting
-      alert("Failed to process CV. Please try again.");
+      toast({ title: "Generation failed", description: "Please try again or check your network.", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -86,9 +98,22 @@ const CVApp = () => {
           </div>
           
           <div className="flex items-center gap-4">
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
+            {user ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={async () => {
+                  await signOut();
+                  toast({ title: "Signed out", description: "You have been logged out.", variant: "success" });
+                }}
+              >
+                Logout
+              </Button>
+            ) : (
+              <Button variant="outline" size="sm" asChild>
+                <Link to="/auth">Sign In</Link>
+              </Button>
+            )}
           </div>
         </div>
       </header>

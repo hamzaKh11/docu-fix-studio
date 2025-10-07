@@ -8,6 +8,25 @@ import Index from "./pages/Index";
 import CVApp from "./pages/CVApp";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { useAuth } from "@/contexts/AuthContext";
+
+const ProtectedRoute = ({ children }: { children: React.ReactElement }) => {
+  const { user, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="min-h-screen grid place-items-center">
+        <div className="h-10 w-10 animate-spin rounded-full border-2 border-border border-t-transparent" />
+      </div>
+    );
+  }
+  return user ? children : <Auth />;
+};
+
+const PublicRoute = ({ children }: { children: React.ReactElement }) => {
+  const { user, loading } = useAuth();
+  if (loading) return children;
+  return user ? <CVApp /> : children;
+};
 
 const queryClient = new QueryClient();
 
@@ -16,12 +35,26 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
           <Routes>
             <Route path="/" element={<Index />} />
-            <Route path="/app" element={<CVApp />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route
+              path="/app"
+              element={
+                <ProtectedRoute>
+                  <CVApp />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auth"
+              element={
+                <PublicRoute>
+                  <Auth />
+                </PublicRoute>
+              }
+            />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
