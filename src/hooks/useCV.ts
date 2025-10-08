@@ -4,37 +4,41 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Database } from "@/integrations/supabase/types";
 import { CVFormData } from "@/lib/validators";
 import { toast } from "sonner";
-import { PostgrestError } from "@supabase/supabase-js";
 
 // Deriving types directly from Supabase's generated types for consistency.
 type UserCvRow = Database['public']['Tables']['user_cvs']['Row'];
 type ExperienceRow = Database['public']['Tables']['experiences']['Row'];
 type EducationRow = Database['public']['Tables']['education']['Row'];
-type ExperienceInsert = Database['public']['Tables']['experiences']['Insert'];
-type EducationInsert = Database['public']['Tables']['education']['Insert'];
+// Use 'Insert' types but omit 'id' and 'cv_id' as we will provide them.
+type ExperienceInsert = Omit<Database['public']['Tables']['experiences']['Insert'], 'id' | 'cv_id'>;
+type EducationInsert = Omit<Database['public']['Tables']['education']['Insert'], 'id' | 'cv_id'>;
 
 export type FullCV = UserCvRow & {
   experiences: ExperienceRow[];
   education: EducationRow[];
 };
 
-// FIX: Update the function to accept 'unknown' type for broader error compatibility.
 function handleSupabaseError(error: unknown, context: string) {
   if (!error) return;
 
-  // Type guard to check if the error has a message property
+  let errorMessage = "An unknown error occurred.";
   if (typeof error === 'object' && error !== null && 'message' in error) {
-    const errorMessage = (error as { message: string }).message;
-    console.error(`Error in ${context}:`, error);
-    toast.error(`Failed during ${context}.`, {
-      description: errorMessage,
-    });
-  } else {
-    // Fallback for unknown error types
-    console.error(`An unknown error occurred in ${context}:`, error);
-    toast.error(`An unknown error occurred during ${context}.`);
+    errorMessage = (error as { message: string }).message;
   }
+  
+  console.error(`Error in ${context}:`, error);
+  toast.error(`Failed during ${context}.`, {
+    description: errorMessage,
+  });
 }
+
+const formatDateForSupabase = (dateStr: string | null | undefined): string | null => {
+    if (!dateStr) return null;
+    if (dateStr.length === 7 && dateStr.includes('-')) {
+        return `${dateStr}-01`;
+    }
+    return dateStr;
+};
 
 export function useCV() {
   const { user } = useAuth();
@@ -82,7 +86,8 @@ export function useCV() {
       if (!user) return null;
       setLoading(true);
       try {
-        await supabase.from("user_cvs").update({
+        // Step 1: Update personal_info in user_cvs table
+        const { error: userCvError } = await supabase.from("user_cvs").update({
             title: formData.name || "My CV",
             target_role: formData.targetRole,
             language: formData.language,
@@ -93,38 +98,50 @@ export function useCV() {
             },
         }).eq("id", cvId);
 
-        const experienceToUpsert: ExperienceInsert[] = formData.experience.map(exp => ({
-            id: exp.id, cv_id: cvId, company: exp.company, position: exp.position,
-            start_date: exp.start_date, end_date: exp.end_date || null, description: exp.description || null,
-        }));
-        await supabase.from("experiences").upsert(experienceToUpsert, { onConflict: 'id' });
-        
-        if (currentCV?.experiences) {
-            const expIdsInForm = formData.experience.map(e => e.id);
-            const idsToDelete = currentCV.experiences.filter(e => !expIdsInForm.includes(e.id)).map(e => e.id);
-            if (idsToDelete.length > 0) {
-                await supabase.from('experiences').delete().in('id', idsToDelete);
-            }
+        if (userCvError) {
+          throw userCvError;
         }
 
-        const educationToUpsert: EducationInsert[] = formData.education.map(edu => ({
-            id: edu.id, cv_id: cvId, institution: edu.institution, degree: edu.degree,
-            start_date: edu.start_date, end_date: edu.end_date || null,
-        }));
-        await supabase.from("education").upsert(educationToUpsert, { onConflict: 'id' });
-        
-        if (currentCV?.education) {
-            const eduIdsInForm = formData.education.map(e => e.id);
-            const idsToDelete = currentCV.education.filter(e => !eduIdsInForm.includes(e.id)).map(e => e.id);
-            if (idsToDelete.length > 0) {
-                await supabase.from('education').delete().in('id', idsToDelete);
-            }
+        // Step 2: Delete old experience and education records
+        const { error: deleteExpError } = await supabase.from('experiences').delete().eq('cv_id', cvId);
+        if (deleteExpError) handleSupabaseError(deleteExpError, "clearing old experience");
+
+        const { error: deleteEduError } = await supabase.from('education').delete().eq('cv_id', cvId);
+        if (deleteEduError) handleSupabaseError(deleteEduError, "clearing old education");
+
+
+        // Step 3: Insert new experience records
+        if (formData.experience && formData.experience.length > 0) {
+            const experiencesToInsert = formData.experience.map(exp => ({
+                cv_id: cvId, // Add cv_id here
+                company: exp.company,
+                position: exp.position,
+                start_date: formatDateForSupabase(exp.start_date)!,
+                end_date: formatDateForSupabase(exp.end_date),
+                description: exp.description || null,
+            }));
+            const { error: insertExpError } = await supabase.from("experiences").insert(experiencesToInsert);
+            if (insertExpError) handleSupabaseError(insertExpError, "inserting new experience");
+        }
+
+        // Step 4: Insert new education records
+        if (formData.education && formData.education.length > 0) {
+            const educationToInsert = formData.education.map(edu => ({
+                cv_id: cvId, // Add cv_id here
+                institution: edu.institution,
+                degree: edu.degree,
+                start_date: formatDateForSupabase(edu.start_date)!,
+                end_date: formatDateForSupabase(edu.end_date),
+            }));
+            const { error: insertEduError } = await supabase.from("education").insert(educationToInsert);
+            if (insertEduError) handleSupabaseError(insertEduError, "inserting new education");
         }
 
         toast.success("Progress saved!");
         const updatedFullCV = await fetchOrCreateUserCV(); 
         if(updatedFullCV) setCurrentCV(updatedFullCV);
         return updatedFullCV;
+
       } catch (error) {
         handleSupabaseError(error, "saving CV progress");
         return null;
@@ -132,9 +149,10 @@ export function useCV() {
         setLoading(false);
       }
     },
-    [user, fetchOrCreateUserCV, setCurrentCV, currentCV]
+    [user, fetchOrCreateUserCV]
   );
   
+  // No changes needed for the functions below this line
   const patchCV = useCallback(async (cvId: string, updates: Partial<UserCvRow>) => {
     setLoading(true);
     try {
@@ -189,7 +207,6 @@ export function useCV() {
             if (cv.original_file_url) {
                 const filePath = cv.original_file_url.substring(cv.original_file_url.indexOf(user.id));
                 const { error: storageError } = await supabase.storage.from('cv-uploads').remove([filePath]);
-                // FIX: Check the error message for "Not found" instead of statusCode
                 if (storageError && !storageError.message.includes('Not found')) {
                     throw storageError;
                 }
