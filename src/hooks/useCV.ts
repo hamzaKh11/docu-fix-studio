@@ -18,12 +18,22 @@ export type FullCV = UserCvRow & {
   education: EducationRow[];
 };
 
-function handleSupabaseError(error: PostgrestError | null, context: string) {
+// FIX: Update the function to accept 'unknown' type for broader error compatibility.
+function handleSupabaseError(error: unknown, context: string) {
   if (!error) return;
-  console.error(`Error in ${context}:`, error);
-  toast.error(`Failed during ${context}.`, {
-    description: error.message,
-  });
+
+  // Type guard to check if the error has a message property
+  if (typeof error === 'object' && error !== null && 'message' in error) {
+    const errorMessage = (error as { message: string }).message;
+    console.error(`Error in ${context}:`, error);
+    toast.error(`Failed during ${context}.`, {
+      description: errorMessage,
+    });
+  } else {
+    // Fallback for unknown error types
+    console.error(`An unknown error occurred in ${context}:`, error);
+    toast.error(`An unknown error occurred during ${context}.`);
+  }
 }
 
 export function useCV() {
@@ -60,7 +70,7 @@ export function useCV() {
       return newData as unknown as FullCV;
 
     } catch (error) {
-      handleSupabaseError(error as PostgrestError, "loading your CV");
+      handleSupabaseError(error, "loading your CV");
       return null;
     } finally {
       setLoading(false);
@@ -72,9 +82,7 @@ export function useCV() {
       if (!user) return null;
       setLoading(true);
       try {
-        const { data: cvData, error: cvError } = await supabase
-          .from("user_cvs")
-          .update({
+        await supabase.from("user_cvs").update({
             title: formData.name || "My CV",
             target_role: formData.targetRole,
             language: formData.language,
@@ -83,57 +91,48 @@ export function useCV() {
               linkedin: formData.linkedin, summary: formData.summary, skills: formData.skills,
               languages: formData.languages, certifications: formData.certifications,
             },
-          })
-          .eq("id", cvId)
-          .select()
-          .single();
-        if (cvError) throw cvError;
+        }).eq("id", cvId);
 
         const experienceToUpsert: ExperienceInsert[] = formData.experience.map(exp => ({
-            id: exp.id,
-            cv_id: cvId,
-            company: exp.company,
-            position: exp.position,
-            start_date: exp.start_date,
-            end_date: exp.end_date || null,
-            description: exp.description || null,
+            id: exp.id, cv_id: cvId, company: exp.company, position: exp.position,
+            start_date: exp.start_date, end_date: exp.end_date || null, description: exp.description || null,
         }));
-        await supabase.from("experiences").upsert(experienceToUpsert);
+        await supabase.from("experiences").upsert(experienceToUpsert, { onConflict: 'id' });
         
-        const expIdsInForm = formData.experience.map(e => e.id);
-        if (expIdsInForm.length > 0) {
-            await supabase.from('experiences').delete().eq('cv_id', cvId).not('id', 'in', `(${expIdsInForm.map(id => `'${id}'`).join(',')})`);
-        } else {
-            await supabase.from('experiences').delete().eq('cv_id', cvId);
+        if (currentCV?.experiences) {
+            const expIdsInForm = formData.experience.map(e => e.id);
+            const idsToDelete = currentCV.experiences.filter(e => !expIdsInForm.includes(e.id)).map(e => e.id);
+            if (idsToDelete.length > 0) {
+                await supabase.from('experiences').delete().in('id', idsToDelete);
+            }
         }
 
         const educationToUpsert: EducationInsert[] = formData.education.map(edu => ({
-            id: edu.id,
-            cv_id: cvId,
-            institution: edu.institution,
-            degree: edu.degree,
-            start_date: edu.start_date,
-            end_date: edu.end_date || null,
+            id: edu.id, cv_id: cvId, institution: edu.institution, degree: edu.degree,
+            start_date: edu.start_date, end_date: edu.end_date || null,
         }));
-        await supabase.from("education").upsert(educationToUpsert);
+        await supabase.from("education").upsert(educationToUpsert, { onConflict: 'id' });
         
-        const eduIdsInForm = formData.education.map(e => e.id);
-        if (eduIdsInForm.length > 0) {
-            await supabase.from('education').delete().eq('cv_id', cvId).not('id', 'in', `(${eduIdsInForm.map(id => `'${id}'`).join(',')})`);
-        } else {
-            await supabase.from('education').delete().eq('cv_id', cvId);
+        if (currentCV?.education) {
+            const eduIdsInForm = formData.education.map(e => e.id);
+            const idsToDelete = currentCV.education.filter(e => !eduIdsInForm.includes(e.id)).map(e => e.id);
+            if (idsToDelete.length > 0) {
+                await supabase.from('education').delete().in('id', idsToDelete);
+            }
         }
 
         toast.success("Progress saved!");
-        return cvData as UserCvRow;
+        const updatedFullCV = await fetchOrCreateUserCV(); 
+        if(updatedFullCV) setCurrentCV(updatedFullCV);
+        return updatedFullCV;
       } catch (error) {
-        handleSupabaseError(error as PostgrestError, "saving CV progress");
+        handleSupabaseError(error, "saving CV progress");
         return null;
       } finally {
         setLoading(false);
       }
     },
-    [user]
+    [user, fetchOrCreateUserCV, setCurrentCV, currentCV]
   );
   
   const patchCV = useCallback(async (cvId: string, updates: Partial<UserCvRow>) => {
@@ -145,14 +144,12 @@ export function useCV() {
             .eq('id', cvId)
             .select(`*, experiences(*), education(*)`)
             .single();
-
         if (error) throw error;
-        
         const updatedCV = data as unknown as FullCV;
         setCurrentCV(updatedCV);
         return updatedCV;
     } catch (error) {
-        handleSupabaseError(error as PostgrestError, "updating CV status");
+        handleSupabaseError(error, "updating CV status");
         return null;
     } finally {
         setLoading(false);
@@ -176,7 +173,7 @@ export function useCV() {
         await patchCV(cvId, { original_file_url: data.publicUrl });
         return data.publicUrl;
       } catch (error) {
-        handleSupabaseError(error as PostgrestError, "file upload");
+        handleSupabaseError(error, "file upload");
         return null;
       } finally {
         setLoading(false);
@@ -189,39 +186,31 @@ export function useCV() {
         if (!user || !cv) return;
         setLoading(true);
         try {
-            // Delete the associated file from storage first
             if (cv.original_file_url) {
                 const filePath = cv.original_file_url.substring(cv.original_file_url.indexOf(user.id));
-                await supabase.storage.from('cv-uploads').remove([filePath]);
+                const { error: storageError } = await supabase.storage.from('cv-uploads').remove([filePath]);
+                // FIX: Check the error message for "Not found" instead of statusCode
+                if (storageError && !storageError.message.includes('Not found')) {
+                    throw storageError;
+                }
             }
-            // This will reset the CV's data but keep the row for the user.
             await patchCV(cv.id, {
-                title: "My CV",
-                original_file_url: null,
-                generated_doc_url: null,
-                generated_pdf_url: null,
-                ats_score: null,
-                recommendations: null,
-                status: 'draft',
-                target_role: null,
-                personal_info: null,
+                title: "My CV", original_file_url: null, generated_doc_url: null,
+                generated_pdf_url: null, ats_score: null, recommendations: null,
+                status: 'draft', target_role: null, personal_info: null,
             });
 
-            // Delete all associated experience and education records
             await supabase.from('experiences').delete().eq('cv_id', cv.id);
             await supabase.from('education').delete().eq('cv_id', cv.id);
 
             toast.success("CV data has been reset.");
-            // Refetch the now-empty CV to update the UI
-            const freshCV = await fetchOrCreateUserCV(); 
-            if (freshCV) setCurrentCV(freshCV);
-
+            setCurrentCV(null);
         } catch (error) {
-            handleSupabaseError(error as PostgrestError, "deleting CV");
+            handleSupabaseError(error, "deleting CV");
         } finally {
             setLoading(false);
         }
-    }, [user, patchCV, fetchOrCreateUserCV, setCurrentCV]);
+    }, [user, patchCV, setCurrentCV]);
 
 
   return { loading, currentCV, setCurrentCV, fetchOrCreateUserCV, updateFullCV, patchCV, uploadCVFile, deleteCVData };

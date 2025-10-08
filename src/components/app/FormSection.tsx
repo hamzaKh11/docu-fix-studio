@@ -77,7 +77,6 @@ const FormSection = ({ form }: FormSectionProps) => {
           />
         </div>
 
-        {/* Basic Info */}
         <div className="space-y-4">
           <FormField
             control={form.control}
@@ -92,7 +91,6 @@ const FormSection = ({ form }: FormSectionProps) => {
               </FormItem>
             )}
           />
-
           <div className="grid sm:grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -128,7 +126,6 @@ const FormSection = ({ form }: FormSectionProps) => {
               )}
             />
           </div>
-
           <FormField
             control={form.control}
             name="linkedin"
@@ -141,7 +138,6 @@ const FormSection = ({ form }: FormSectionProps) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="targetRole"
@@ -158,7 +154,6 @@ const FormSection = ({ form }: FormSectionProps) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="summary"
@@ -177,7 +172,6 @@ const FormSection = ({ form }: FormSectionProps) => {
           />
         </div>
 
-        {/* Experience */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-card-foreground">
@@ -198,11 +192,9 @@ const FormSection = ({ form }: FormSectionProps) => {
               size="sm"
               variant="outline"
             >
-              <Plus className="w-4 h-4 mr-2" />
-              Add
+              <Plus className="w-4 h-4 mr-2" /> Add
             </Button>
           </div>
-
           {experienceFields.map((field, index) => (
             <div
               key={field.id}
@@ -291,7 +283,6 @@ const FormSection = ({ form }: FormSectionProps) => {
           ))}
         </div>
 
-        {/* Education */}
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-bold text-card-foreground">
@@ -388,7 +379,6 @@ const FormSection = ({ form }: FormSectionProps) => {
           ))}
         </div>
 
-        {/* Skills, etc. */}
         <div className="space-y-4">
           <FormField
             control={form.control}

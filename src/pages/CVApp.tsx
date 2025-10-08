@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Save } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -9,7 +9,7 @@ import ActionBar from "@/components/app/ActionBar";
 import { CVFormData, cvFormSchema } from "@/lib/validators";
 import { CVResponse } from "@/types/cv";
 import { useAuth } from "@/contexts/AuthContext";
-import { useCV } from "@/hooks/useCV";
+import { useCV, FullCV } from "@/hooks/useCV";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -50,77 +50,81 @@ const CVApp = () => {
     },
   });
 
+  const resetFormWithCV = useCallback(
+    (cv: FullCV | null) => {
+      if (cv) {
+        const personalInfo: Partial<PersonalInfo> =
+          typeof cv.personal_info === "object" &&
+          cv.personal_info !== null &&
+          !Array.isArray(cv.personal_info)
+            ? (cv.personal_info as PersonalInfo)
+            : {};
+
+        form.reset({
+          name: personalInfo.name || "",
+          email: personalInfo.email || user?.email || "",
+          phone: personalInfo.phone || "",
+          linkedin: personalInfo.linkedin || "",
+          summary: personalInfo.summary || "",
+          targetRole: cv.target_role || "",
+          language: cv.language || "en",
+          experience:
+            cv.experiences?.map((e) => ({
+              ...e,
+              description: e.description ?? "",
+              end_date: e.end_date ?? "",
+            })) || [],
+          education:
+            cv.education?.map((e) => ({ ...e, end_date: e.end_date ?? "" })) ||
+            [],
+          skills: personalInfo.skills || [],
+          languages: personalInfo.languages || [],
+          certifications: personalInfo.certifications || [],
+        });
+        setCvResponse({
+          doc_id: cv.generated_doc_url?.split("/d/")[1]?.split("/")[0],
+          pdf_url: cv.generated_pdf_url,
+        });
+      } else {
+        form.reset({
+          name: "",
+          email: user?.email || "",
+          phone: "",
+          linkedin: "",
+          summary: "",
+          targetRole: "",
+          language: "en",
+          experience: [],
+          education: [],
+          skills: [],
+          languages: [],
+          certifications: [],
+        });
+        setCvResponse(null);
+        setUploadedFile(null);
+      }
+    },
+    [form, user?.email]
+  );
+
   useEffect(() => {
     if (user && isInitialLoad.current) {
+      isInitialLoad.current = false;
       const loadCV = async () => {
         const cv = await fetchOrCreateUserCV();
-        if (cv) setCurrentCV(cv);
+        if (cv) {
+          setCurrentCV(cv);
+          resetFormWithCV(cv);
+        }
       };
       loadCV();
-      isInitialLoad.current = false;
     }
-  }, [user, fetchOrCreateUserCV, setCurrentCV]);
-
-  useEffect(() => {
-    if (currentCV) {
-      const personalInfo: Partial<PersonalInfo> =
-        typeof currentCV.personal_info === "object" &&
-        currentCV.personal_info !== null &&
-        !Array.isArray(currentCV.personal_info)
-          ? (currentCV.personal_info as PersonalInfo)
-          : {};
-
-      form.reset({
-        name: personalInfo.name || "",
-        email: personalInfo.email || user?.email || "",
-        phone: personalInfo.phone || "",
-        linkedin: personalInfo.linkedin || "",
-        summary: personalInfo.summary || "",
-        targetRole: currentCV.target_role || "",
-        language: currentCV.language || "en",
-        experience:
-          currentCV.experiences?.map((e) => ({
-            ...e,
-            description: e.description ?? "",
-            end_date: e.end_date ?? "",
-          })) || [],
-        education:
-          currentCV.education?.map((e) => ({
-            ...e,
-            end_date: e.end_date ?? "",
-          })) || [],
-        skills: personalInfo.skills || [],
-        languages: personalInfo.languages || [],
-        certifications: personalInfo.certifications || [],
-      });
-
-      setCvResponse({
-        doc_id: currentCV.generated_doc_url?.split("/d/")[1]?.split("/")[0],
-        pdf_url: currentCV.generated_pdf_url,
-      });
-    } else {
-      form.reset({
-        name: "",
-        email: user?.email || "",
-        phone: "",
-        linkedin: "",
-        summary: "",
-        targetRole: "",
-        language: "en",
-        experience: [],
-        education: [],
-        skills: [],
-        languages: [],
-        certifications: [],
-      });
-      setCvResponse(null);
-      setUploadedFile(null);
-    }
-  }, [currentCV, form, user?.email]);
+  }, [user, fetchOrCreateUserCV, setCurrentCV, resetFormWithCV]);
 
   const handleDeleteCV = async () => {
     if (!currentCV) return;
     await deleteCVData(currentCV);
+    resetFormWithCV(null); // Explicitly reset form after deletion
   };
 
   const handleSaveProgress = async () => {
@@ -133,12 +137,22 @@ const CVApp = () => {
       toast.error("CV workspace not found. Please refresh the page.");
       return;
     }
-    await updateFullCV(currentCV.id, formData);
-    await patchCV(currentCV.id, { status: "processing" });
+
+    // Step 1: Save all data first and get the fully updated CV object back.
+    const updatedCVAfterSave = await updateFullCV(currentCV.id, formData);
+    if (!updatedCVAfterSave) {
+      toast.error(
+        "Failed to save CV data before generation. Please try again."
+      );
+      return;
+    }
+
+    // Step 2: Now proceed with the generation process using the guaranteed fresh data.
+    await patchCV(updatedCVAfterSave.id, { status: "processing" });
     try {
-      let cvUrl = currentCV.original_file_url;
+      let cvUrl = updatedCVAfterSave.original_file_url;
       if (uploadedFile) {
-        cvUrl = await uploadCVFile(uploadedFile, currentCV.id);
+        cvUrl = await uploadCVFile(uploadedFile, updatedCVAfterSave.id);
         if (!cvUrl) throw new Error("File upload failed.");
       }
       const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
@@ -149,7 +163,7 @@ const CVApp = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           user_id: user?.id,
-          cv_id: currentCV.id,
+          cv_id: updatedCVAfterSave.id,
           cv_url: cvUrl,
           form_fields: formData,
         }),
@@ -160,20 +174,21 @@ const CVApp = () => {
         throw new Error(errorText || "The server responded with an error.");
       }
       const result: CVResponse = await response.json();
-      setCvResponse(result);
-      if (result.doc_id && result.pdf_url) {
-        await patchCV(currentCV.id, {
-          status: "completed",
-          generated_doc_url: `https://docs.google.com/document/d/${result.doc_id}/edit`,
-          generated_pdf_url: result.pdf_url,
-        });
+      const finalCv = await patchCV(updatedCVAfterSave.id, {
+        status: "completed",
+        generated_doc_url: `https://docs.google.com/document/d/${result.doc_id}/edit`,
+        generated_pdf_url: result.pdf_url,
+      });
+      if (finalCv) {
+        resetFormWithCV(finalCv); // Final reset with generated URLs
       }
       toast.success("CV Generation Complete!");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "An unknown error occurred.";
       toast.error("CV Generation Failed", { description: message });
-      if (currentCV) await patchCV(currentCV.id, { status: "failed" });
+      if (updatedCVAfterSave)
+        await patchCV(updatedCVAfterSave.id, { status: "failed" });
     }
   };
 
