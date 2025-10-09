@@ -126,9 +126,36 @@ const CVApp = () => {
     resetFormWithCV(null);
   };
 
+  // In src/pages/CVApp.tsx
+
   const handleSaveProgress = async () => {
     if (!currentCV) return;
-    await updateFullCV(currentCV.id, form.getValues());
+
+    // Trigger validation to make sure the form is valid before saving
+    const isValid = await form.trigger();
+    if (!isValid) {
+      toast.error("Please fill out all required fields before saving.");
+      return;
+    }
+
+    // Get the form data
+    const formData = form.getValues();
+
+    // If there is a new file to upload, upload it first
+    if (uploadedFile) {
+      const newCvUrl = await uploadCVFile(uploadedFile, currentCV.id);
+      if (newCvUrl) {
+        // If the upload is successful, update the CV with the new URL
+        await updateFullCV(currentCV.id, formData);
+      } else {
+        // Handle upload failure
+        toast.error("Failed to upload the new CV. Please try again.");
+        return; // Stop the process if the upload fails
+      }
+    } else {
+      // If there's no new file, just update the form data
+      await updateFullCV(currentCV.id, formData);
+    }
   };
 
   const onSubmit = async (formData: CVFormData) => {
