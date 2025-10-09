@@ -5,7 +5,6 @@ import { Link } from "react-router-dom";
 import UploadSection from "@/components/app/UploadSection";
 import FormSection from "@/components/app/FormSection";
 import PreviewSection from "@/components/app/PreviewSection";
-import ActionBar from "@/components/app/ActionBar";
 import { CVFormData, cvFormSchema } from "@/lib/validators";
 import { CVResponse } from "@/types/cv";
 import { useAuth } from "@/contexts/AuthContext";
@@ -214,8 +213,6 @@ const CVApp = () => {
           </div>
         </div>
       </header>
-
-      {cvResponse?.doc_id && <ActionBar cvResponse={cvResponse} />}
 
       <div className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
