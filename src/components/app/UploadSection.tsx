@@ -20,6 +20,12 @@ interface UploadSectionProps {
   onDelete: () => void;
 }
 
+const shortenMiddle = (name: string, max = 32) => {
+  if (name.length <= max) return name;
+  const part = Math.floor((max - 3) / 2);
+  return `${name.slice(0, part)}...${name.slice(name.length - part)}`;
+};
+
 const UploadSection = ({
   uploadedFile,
   setUploadedFile,
@@ -100,7 +106,7 @@ const UploadSection = ({
                 className="font-medium text-card-foreground truncate"
                 title={getFileName()}
               >
-                {getFileName()}
+                {shortenMiddle(getFileName(), 20)}
               </p>
               {uploadedFile && (
                 <p className="text-sm text-muted-foreground">

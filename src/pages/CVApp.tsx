@@ -123,7 +123,7 @@ const CVApp = () => {
   const handleDeleteCV = async () => {
     if (!currentCV) return;
     await deleteCVData(currentCV);
-    resetFormWithCV(null); // Explicitly reset form after deletion
+    resetFormWithCV(null);
   };
 
   const handleSaveProgress = async () => {
@@ -136,8 +136,6 @@ const CVApp = () => {
       toast.error("CV workspace not found. Please refresh the page.");
       return;
     }
-
-    // Step 1: Save all data first and get the fully updated CV object back.
     const updatedCVAfterSave = await updateFullCV(currentCV.id, formData);
     if (!updatedCVAfterSave) {
       toast.error(
@@ -145,8 +143,6 @@ const CVApp = () => {
       );
       return;
     }
-
-    // Step 2: Now proceed with the generation process using the guaranteed fresh data.
     await patchCV(updatedCVAfterSave.id, { status: "processing" });
     try {
       let cvUrl = updatedCVAfterSave.original_file_url;
@@ -179,7 +175,7 @@ const CVApp = () => {
         generated_pdf_url: result.pdf_url,
       });
       if (finalCv) {
-        resetFormWithCV(finalCv); // Final reset with generated URLs
+        resetFormWithCV(finalCv);
       }
       toast.success("CV Generation Complete!");
     } catch (error: unknown) {
@@ -214,7 +210,7 @@ const CVApp = () => {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
           <div>
             <UploadSection
@@ -224,12 +220,13 @@ const CVApp = () => {
               onDelete={handleDeleteCV}
             />
             <FormSection form={form} />
-            <div className="mt-6 flex gap-4">
+            {/* THIS IS THE ONLY CHANGE NEEDED */}
+            <div className="mt-6 flex flex-wrap gap-4">
               <Button
                 onClick={handleSaveProgress}
                 disabled={loading}
                 variant="outline"
-                className="w-full"
+                className="w-full sm:w-auto flex-1"
               >
                 <Save className="w-4 h-4 mr-2" />
                 {loading && currentCV?.status !== "processing"
@@ -239,7 +236,7 @@ const CVApp = () => {
               <Button
                 onClick={form.handleSubmit(onSubmit)}
                 disabled={loading}
-                className="w-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold text-lg py-6 shadow-soft-lg transition-all hover:scale-[1.02]"
+                className="w-full sm:w-auto flex-1 bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold text-lg py-6 shadow-soft-lg transition-all hover:scale-[1.02]"
               >
                 {currentCV?.status === "processing" || loading
                   ? "Processing..."
@@ -255,7 +252,7 @@ const CVApp = () => {
             />
           </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 };
