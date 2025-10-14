@@ -83,7 +83,7 @@ const CVApp = () => {
         });
         setCvResponse({
           doc_id: cv.generated_doc_url?.split("/d/")[1]?.split("/")[0],
-          pdf_url: cv.generated_pdf_url,
+          pdf_url: cv.generated_pdf_url ?? undefined,
         });
       } else {
         form.reset({
@@ -120,6 +120,10 @@ const CVApp = () => {
       loadCV();
     }
   }, [user, fetchOrCreateUserCV, setCurrentCV, resetFormWithCV]);
+
+  useEffect(() => {
+    resetFormWithCV(currentCV);
+  }, [currentCV, resetFormWithCV]);
 
   const handleDeleteCV = async () => {
     if (!currentCV) return;
@@ -196,16 +200,10 @@ const CVApp = () => {
         const errorText = await response.text();
         throw new Error(errorText || "The server responded with an error.");
       }
-      const result: CVResponse = await response.json();
-      const finalCv = await patchCV(updatedCVAfterSave.id, {
-        status: "completed",
-        generated_doc_url: `https://docs.google.com/document/d/${result.doc_id}/edit`,
-        generated_pdf_url: result.pdf_url,
+
+      toast.info("CV generation has started!", {
+        description: "You will be notified when it's complete.",
       });
-      if (finalCv) {
-        resetFormWithCV(finalCv);
-      }
-      toast.success("CV Generation Complete!");
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "An unknown error occurred.";

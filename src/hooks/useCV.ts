@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Database } from "@/integrations/supabase/types";
@@ -9,9 +9,6 @@ import { toast } from "sonner";
 type UserCvRow = Database['public']['Tables']['user_cvs']['Row'];
 type ExperienceRow = Database['public']['Tables']['experiences']['Row'];
 type EducationRow = Database['public']['Tables']['education']['Row'];
-// Use 'Insert' types but omit 'id' and 'cv_id' as we will provide them.
-type ExperienceInsert = Omit<Database['public']['Tables']['experiences']['Insert'], 'id' | 'cv_id'>;
-type EducationInsert = Omit<Database['public']['Tables']['education']['Insert'], 'id' | 'cv_id'>;
 
 export type FullCV = UserCvRow & {
   experiences: ExperienceRow[];
@@ -44,6 +41,32 @@ export function useCV() {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [currentCV, setCurrentCV] = useState<FullCV | null>(null);
+
+  useEffect(() => {
+    if (!user || !currentCV?.id) return;
+
+    const channel = supabase
+      .channel(`public:user_cvs:id=eq.${currentCV.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'user_cvs', filter: `id=eq.${currentCV.id}` },
+        (payload) => {
+          const updatedCv = payload.new as FullCV;
+          setCurrentCV(prev => ({ ...prev, ...updatedCv }));
+
+          if (updatedCv.status === 'completed') {
+            toast.success("CV Generation Complete!");
+          } else if (updatedCv.status === 'failed') {
+            toast.error("CV Generation Failed. Please try again.");
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, currentCV?.id]);
 
   const fetchOrCreateUserCV = useCallback(async () => {
     if (!user) return null;
@@ -152,7 +175,6 @@ export function useCV() {
     [user, fetchOrCreateUserCV]
   );
   
-  // No changes needed for the functions below this line
   const patchCV = useCallback(async (cvId: string, updates: Partial<UserCvRow>) => {
     setLoading(true);
     try {
