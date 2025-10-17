@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { CVResponse } from "@/types/cv";
 import { CVFormData } from "@/lib/validators";
 import {
@@ -9,14 +8,12 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogClose,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
@@ -40,10 +37,6 @@ interface PreviewSectionProps {
 }
 
 const PreviewSection = ({ cvResponse, isLoading }: PreviewSectionProps) => {
-  const [newName, setNewName] = useState("");
-  const [isRenaming, setIsRenaming] = useState(false);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
   // --- Handler for PDF Download ---
   const handleDownloadPDF = () => {
     if (cvResponse?.pdf_url) {
@@ -66,35 +59,12 @@ const PreviewSection = ({ cvResponse, isLoading }: PreviewSectionProps) => {
     }
   };
 
-  // --- Handler for Rename Action ---
-  const handleRename = async () => {
-    if (!newName.trim() || !cvResponse?.doc_id) return;
-
-    setIsRenaming(true);
-    try {
-      // TODO: Replace with your actual API endpoint.
-      const response = await fetch("/api/rename-placeholder", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          doc_id: cvResponse.doc_id,
-          new_name: newName,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to rename document");
-      }
-
-      toast.success("Document renamed successfully!");
-      setNewName("");
-      setIsDialogOpen(false);
-    } catch (error) {
-      const message =
-        error instanceof Error ? error.message : "An unknown error occurred.";
-      toast.error("Rename Failed", { description: message });
-    } finally {
-      setIsRenaming(false);
+  const handleMakeCopy = () => {
+    if (cvResponse?.doc_id) {
+      const copyUrl = `https://docs.google.com/document/d/${cvResponse.doc_id}/copy`;
+      window.open(copyUrl, "_blank");
+    } else {
+      toast.error("Document not available yet.");
     }
   };
 
@@ -121,6 +91,35 @@ const PreviewSection = ({ cvResponse, isLoading }: PreviewSectionProps) => {
             Google Docs Preview
           </h3>
           <div className="flex items-center gap-2">
+            <Dialog>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="sm">
+                        <FilePenLine className="w-4 h-4" />
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit a copy</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Your CV</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">
+                  You will now have your own copy to edit. When you're finished,
+                  click <strong>File &gt; Download &gt; .pdf</strong>.
+                </p>
+                <DialogFooter>
+                  <Button onClick={handleMakeCopy}>Open</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
             <TooltipProvider>
               {/* --- New Download Dropdown --- */}
               <DropdownMenu>
