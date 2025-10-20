@@ -16,7 +16,7 @@ import { PersonalInfo } from "@/types/database";
 
 const CVApp = () => {
   const { user, signOut } = useAuth();
-  console.log("Current user:", user);
+  // console.log("Current user:", user); // هذا سيطبع كثيرًا وهو طبيعي
   const {
     loading,
     currentCV,
@@ -111,54 +111,50 @@ const CVApp = () => {
     if (user && isInitialLoad.current) {
       isInitialLoad.current = false;
       const loadCV = async () => {
+        console.log("Fetching or creating CV...");
         const cv = await fetchOrCreateUserCV();
         if (cv) {
+          console.log("CV loaded:", cv);
           setCurrentCV(cv);
-          resetFormWithCV(cv);
+          // لا نستدعي resetFormWithCV هنا، الـ effect التالي سيفعل
+        } else {
+          console.error("Failed to load CV.");
         }
       };
       loadCV();
     }
-  }, [user, fetchOrCreateUserCV, setCurrentCV, resetFormWithCV]);
+  }, [user, fetchOrCreateUserCV, setCurrentCV]);
 
+  // هذا الـ effect مخصص فقط لمزامنة currentCV مع الفورم
   useEffect(() => {
+    console.log("CV state changed, resetting form.", currentCV);
     resetFormWithCV(currentCV);
   }, [currentCV, resetFormWithCV]);
 
   const handleDeleteCV = async () => {
     if (!currentCV) return;
     await deleteCVData(currentCV);
-    resetFormWithCV(null);
+    // سيتم تعيين currentCV إلى null داخل deleteCVData، مما سيشغل الـ effect أعلاه
   };
-
-  // In src/pages/CVApp.tsx
 
   const handleSaveProgress = async () => {
     if (!currentCV) return;
-
-    // Trigger validation to make sure the form is valid before saving
     const isValid = await form.trigger();
     if (!isValid) {
       toast.error("Please fill out all required fields before saving.");
       return;
     }
-
-    // Get the form data
     const formData = form.getValues();
-
-    // If there is a new file to upload, upload it first
     if (uploadedFile) {
       const newCvUrl = await uploadCVFile(uploadedFile, currentCV.id);
       if (newCvUrl) {
-        // If the upload is successful, update the CV with the new URL
         await updateFullCV(currentCV.id, formData);
+        setUploadedFile(null); // امسح الملف بعد الرفع
       } else {
-        // Handle upload failure
         toast.error("Failed to upload the new CV. Please try again.");
-        return; // Stop the process if the upload fails
+        return;
       }
     } else {
-      // If there's no new file, just update the form data
       await updateFullCV(currentCV.id, formData);
     }
   };
@@ -168,6 +164,8 @@ const CVApp = () => {
       toast.error("CV workspace not found. Please refresh the page.");
       return;
     }
+
+    // 1. احفظ البيانات أولاً
     const updatedCVAfterSave = await updateFullCV(currentCV.id, formData);
     if (!updatedCVAfterSave) {
       toast.error(
@@ -175,13 +173,26 @@ const CVApp = () => {
       );
       return;
     }
+
+    // 2. قم بتعيين الحالة إلى "processing". هذا سيُشغل loading = true
     await patchCV(updatedCVAfterSave.id, { status: "processing" });
+
     try {
       let cvUrl = updatedCVAfterSave.original_file_url;
+      // 3. قم برفع الملف إذا كان هناك ملف جديد
       if (uploadedFile) {
-        cvUrl = await uploadCVFile(uploadedFile, updatedCVAfterSave.id);
-        if (!cvUrl) throw new Error("File upload failed.");
+        const newUrl = await uploadCVFile(uploadedFile, updatedCVAfterSave.id);
+        if (!newUrl) throw new Error("File upload failed after save.");
+        cvUrl = newUrl;
+        setUploadedFile(null); // امسح الملف بعد الرفع
       }
+
+      // 4. تأكد من وجود رابط ملف
+      if (!cvUrl) {
+        throw new Error("CV file is missing. Please upload your CV first.");
+      }
+
+      // 5. قم بتشغيل n8n
       const webhookUrl = import.meta.env.VITE_N8N_WEBHOOK_URL;
       if (!webhookUrl) throw new Error("Webhook URL is not configured.");
 
@@ -201,17 +212,24 @@ const CVApp = () => {
         throw new Error(errorText || "The server responded with an error.");
       }
 
+      // هذا هو الـ toast الذي تراه
       toast.info("CV generation has started!", {
         description: "You will be notified when it's complete.",
       });
+      // لا نوقف التحميل. مستمع Realtime سيفعل ذلك.
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "An unknown error occurred.";
       toast.error("CV Generation Failed", { description: message });
+      // إذا فشل، أعد الحالة إلى "failed".
+      // المستمع سيستقبل هذا التحديث ويوقف التحميل.
       if (updatedCVAfterSave)
         await patchCV(updatedCVAfterSave.id, { status: "failed" });
     }
   };
+
+  // === هذا هو المنطق الصحيح 100% ===
+  const isProcessing = loading || currentCV?.status === "processing";
 
   return (
     <div className="min-h-screen bg-background">
@@ -246,11 +264,10 @@ const CVApp = () => {
               onDelete={handleDeleteCV}
             />
             <FormSection form={form} />
-            {/* THIS IS THE ONLY CHANGE NEEDED */}
             <div className="mt-6 flex flex-wrap gap-4">
               <Button
                 onClick={handleSaveProgress}
-                disabled={loading}
+                disabled={isProcessing} // <--- استخدم isProcessing
                 variant="outline"
                 className="w-full sm:w-auto flex-1"
               >
@@ -261,10 +278,10 @@ const CVApp = () => {
               </Button>
               <Button
                 onClick={form.handleSubmit(onSubmit)}
-                disabled={loading}
+                disabled={isProcessing} // <--- استخدم isProcessing
                 className="w-full sm:w-auto flex-1 bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold text-lg py-6 shadow-soft-lg transition-all hover:scale-[1.02]"
               >
-                {currentCV?.status === "processing" || loading
+                {isProcessing // <--- استخدم isProcessing
                   ? "Processing..."
                   : "Generate ATS-Friendly CV"}
               </Button>
@@ -274,7 +291,7 @@ const CVApp = () => {
             <PreviewSection
               cvResponse={cvResponse}
               formData={form.watch()}
-              isLoading={currentCV?.status === "processing"}
+              isLoading={currentCV?.status === "processing"} // <--- هذا صحيح
             />
           </div>
         </div>
