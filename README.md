@@ -66,28 +66,6 @@ Creates Google Docs and PDF files.
 
 Updates the database with the results and generated files.
 
-📂 Project Structure
-/
-├── public/ # Public assets (favicon, etc.)
-├── src/
-│ ├── components/ # React components (UI and App-specific)
-│ │ ├── app/ # Components for the main app page (Form, Upload, Preview)
-│ │ ├── landing/ # Components for the landing page
-│ │ └── ui/ # shadcn/ui components
-│ ├── contexts/ # React Contexts (e.g., AuthContext)
-│ ├── hooks/ # Custom Hooks (e.g., useCV)
-│ ├── integrations/ # Service integrations (Supabase)
-│ ├── lib/ # Utilities and validators (utils, validators)
-│ ├── pages/ # Application pages (CVApp, Auth, Index)
-│ ├── types/ # TypeScript definitions (CV data, database types)
-│ └── App.tsx # Main app component and routing setup
-├── supabase/ # Supabase configuration and migrations
-│ └── migrations/ # SQL migration files for database schema
-├── .gitignore # Files to be ignored by Git
-├── N8N_WORKFLOW.md # Detailed documentation for the n8n workflow
-├── package.json # Project definition and dependencies
-└── vite.config.ts # Vite configuration
-
 ### 🚀 Getting Started
 
 Clone the repository:
@@ -102,11 +80,11 @@ Bash
 
 npm install
 
-# or
+#### or
 
 yarn install
 
-# or
+#### or
 
 bun install
 Set up environment variables: Create a .env file in the project root and add your Supabase and n8n credentials:
