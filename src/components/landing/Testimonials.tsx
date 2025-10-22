@@ -5,7 +5,8 @@ const testimonials = [
     name: "Sarah Johnson",
     role: "Software Engineer",
     company: "Google",
-    content: "CVCraft helped me land my dream job at Google. The ATS optimization made all the difference!",
+    content:
+      "CVCraft helped me land my dream job at Google. The ATS optimization made all the difference!",
     rating: 5,
     avatar: "SJ",
   },
@@ -13,7 +14,8 @@ const testimonials = [
     name: "Michael Chen",
     role: "Product Manager",
     company: "Amazon",
-    content: "I got 3x more interview calls after using CVCraft. The formatting is clean and professional.",
+    content:
+      "I got 3x more interview calls after using CVCraft. The formatting is clean and professional.",
     rating: 5,
     avatar: "MC",
   },
@@ -21,7 +23,8 @@ const testimonials = [
     name: "Aisha Mohammed",
     role: "Data Scientist",
     company: "Microsoft",
-    content: "The multi-language support is fantastic. I created CVs in English and Arabic effortlessly.",
+    content:
+      "The multi-language support is fantastic. I created CVs in English and Arabic effortlessly.",
     rating: 5,
     avatar: "AM",
   },
@@ -39,10 +42,10 @@ const Testimonials = () => {
             Join thousands who've landed their dream jobs with CVCraft
           </p>
         </div>
-        
+
         <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
           {testimonials.map((testimonial, index) => (
-            <div 
+            <div
               key={index}
               className="p-6 rounded-xl bg-background border border-border hover:border-primary/30 transition-all hover:shadow-soft-lg animate-fade-in"
               style={{ animationDelay: `${index * 50}ms` }}
@@ -52,11 +55,11 @@ const Testimonials = () => {
                   <Star key={i} className="w-5 h-5 fill-primary text-primary" />
                 ))}
               </div>
-              
+
               <p className="text-card-foreground mb-6 leading-relaxed">
                 "{testimonial.content}"
               </p>
-              
+
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 rounded-full bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] flex items-center justify-center text-white font-bold">
                   {testimonial.avatar}

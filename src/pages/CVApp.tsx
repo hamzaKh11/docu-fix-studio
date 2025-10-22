@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Save } from "lucide-react";
 import UploadSection from "@/components/app/UploadSection";
 import FormSection from "@/components/app/FormSection";
 import PreviewSection from "@/components/app/PreviewSection";
@@ -13,9 +12,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { PersonalInfo } from "@/types/database";
+import { Sparkles } from "lucide-react";
 
 const CVApp = () => {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
   // console.log("Current user:", user); // هذا سيطبع كثيرًا وهو طبيعي
   const {
     loading,
@@ -233,7 +233,7 @@ const CVApp = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-background sticky top-0 z-50 shadow-soft">
+      {/* <header className="border-b border-border bg-background sticky top-0 z-50 shadow-soft">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <Button variant="ghost" size="sm" asChild>
@@ -252,7 +252,7 @@ const CVApp = () => {
             </Button>
           </div>
         </div>
-      </header>
+      </header> */}
 
       <main className="container mx-auto px-4 py-8">
         <div className="grid lg:grid-cols-2 gap-8">
@@ -264,26 +264,42 @@ const CVApp = () => {
               onDelete={handleDeleteCV}
             />
             <FormSection form={form} />
-            <div className="mt-6 flex flex-wrap gap-4">
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={handleSaveProgress}
-                disabled={isProcessing} // <--- استخدم isProcessing
+                disabled={isProcessing}
                 variant="outline"
-                className="w-full sm:w-auto flex-1"
+                className="h-12 px-6 rounded-xl border-slate-200/60 bg-white hover:bg-slate-700 text-slate-700 font-medium transition-all duration-300 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <Save className="w-4 h-4 mr-2" />
-                {loading && currentCV?.status !== "processing"
-                  ? "Saving..."
-                  : "Save Progress"}
+                {loading && currentCV?.status !== "processing" ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    Save Progress
+                  </>
+                )}
               </Button>
+
               <Button
                 onClick={form.handleSubmit(onSubmit)}
-                disabled={isProcessing} // <--- استخدم isProcessing
-                className="w-full sm:w-auto flex-1 bg-[linear-gradient(90deg,_hsl(232_98%_68%),_hsl(253_95%_67%))] hover:opacity-90 text-white font-semibold text-lg py-6 shadow-soft-lg transition-all hover:scale-[1.02]"
+                disabled={isProcessing}
+                className="flex-1 h-12 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.01] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {isProcessing // <--- استخدم isProcessing
-                  ? "Processing..."
-                  : "Generate ATS-Friendly CV"}
+                {isProcessing ? (
+                  <>
+                    <div className="w-4 h-4 mr-2 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating your CV
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Generate CV
+                  </>
+                )}
               </Button>
             </div>
           </div>

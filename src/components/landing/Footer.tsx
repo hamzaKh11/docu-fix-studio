@@ -17,7 +17,7 @@ const Footer = () => {
       <div className="container mx-auto px-4">
         <div className="grid md:grid-cols-4 gap-8 mb-8">
           <div>
-            <h3 className="text-2xl font-bold mb-4">CVCraft</h3>
+            <h3 className="text-2xl font-bold mb-4">ATSmooth</h3>
             <p className="text-white/70 text-sm">
               Transform your resume into an ATS-friendly masterpiece.
             </p>
@@ -103,7 +103,7 @@ const Footer = () => {
 
         <div className="border-t border-white/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-sm text-white/70">
-            © 2025 CVCraft. All rights reserved.
+            © 2025 ATSmooth. All rights reserved.
           </p>
 
           <div className="flex gap-4">
