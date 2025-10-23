@@ -55,19 +55,17 @@ const GenerateMessagePage = () => {
     setGeneratedMessage("");
 
     try {
-      // Simulated API call for demo
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
       const demoMessage = `Dear Hiring Manager,
 
-I am writing to express my strong interest in the position. With my background in software development and passion for creating innovative solutions, I believe I would be a valuable addition to your team.
+I am writing to express my strong interest in the [Position Name] position at [Company Name]. With my background in [Your Key Skill] and passion for creating innovative solutions, I believe I would be a valuable addition to your team.
 
-My experience includes working with modern technologies and collaborating with cross-functional teams to deliver high-quality products. I am particularly excited about this opportunity because it aligns perfectly with my career goals and expertise.
+My experience includes [Briefly mention 1-2 key experiences/projects] which align perfectly with the job description. I am particularly excited about this opportunity because [Reason you like the company or role].
 
 I would welcome the opportunity to discuss how my skills and experience can contribute to your organization's success.
 
-Best regards`;
-
+Best regards,
+[Your Name]`;
       setGeneratedMessage(demoMessage);
       toast.success("Message created!");
     } catch (error) {
@@ -87,21 +85,18 @@ Best regards`;
   const selectedType = messageTypes.find((t) => t.id === messageType);
 
   return (
-    // MODIFICATION: Matched container and background to /app design
-    <main className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
-        {/* MODIFICATION: Reduced header size and spacing */}
-        <div className="text-center mb-10 space-y-2">
-          <h1 className="text-3xl font-semibold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight">
+    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-indigo-50/30 to-purple-50/30">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 lg:py-12 max-w-6xl">
+        <div className="text-center mb-6 sm:mb-8 space-y-2">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-semibold bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 bg-clip-text text-transparent tracking-tight">
             AI Message Studio
           </h1>
-          <p className="text-slate-500 text-md max-w-2xl mx-auto">
-            Craft professional messages in seconds
+          <p className="text-slate-600 text-sm sm:text-base max-w-2xl mx-auto">
+            Craft professional LinkedIn messages, emails, and cover letters in
+            seconds.
           </p>
         </div>
-
-        {/* MODIFICATION: Smaller icons, in a single row */}
-        <div className="flex items-center justify-center gap-3 sm:gap-4 mb-8">
+        <div className="flex items-center justify-center gap-3 sm:gap-4 mb-6 sm:mb-8">
           {messageTypes.map((type) => {
             const Icon = type.icon;
             const isActive = messageType === type.id;
@@ -138,18 +133,15 @@ Best regards`;
             );
           })}
         </div>
-
-        {/* Main Content (Original Design Preserved) */}
-        <div className="grid lg:grid-cols-2 gap-6 sm:gap-8">
-          {/* Input Section */}
-          <div className="space-y-6">
-            <div className="bg-white/60 backdrop-blur-xl rounded-3xl sm:rounded-[2rem] border border-slate-200/50 shadow-xl p-6 sm:p-8 transition-all duration-300 hover:shadow-2xl">
-              <label className="block text-slate-700 text-sm font-medium mb-3">
-                Job Description
+        <div className="grid lg:grid-cols-2 gap-4 sm:gap-6">
+          <div className="space-y-4">
+            <div className="bg-white/70 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-slate-200/60 shadow-xl p-5 sm:p-6 transition-all duration-300 hover:shadow-2xl hover:border-slate-300/60">
+              <label className="block text-slate-900 text-sm sm:text-base font-semibold mb-3 sm:mb-4">
+                1. Describe your goal
               </label>
               <Textarea
-                placeholder="Describe the job or opportunity you are targeting..."
-                className="min-h-[250px] text-base resize-none border-slate-200/50 rounded-2xl bg-white/50 backdrop-blur focus:bg-white transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400"
+                placeholder="e.g., 'A LinkedIn message to a recruiter at Google for a Software Engineer role, mentioning my 3 years of experience in React.'"
+                className="min-h-[250px] text-sm resize-none border-slate-200/50 rounded-xl sm:rounded-2xl bg-white/50 backdrop-blur focus:bg-white transition-all duration-300 focus:ring-2 focus:ring-blue-500/20 placeholder:text-slate-400"
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 disabled={isGenerating}
@@ -159,28 +151,26 @@ Best regards`;
             <Button
               onClick={handleGenerate}
               disabled={isGenerating || !prompt.trim()}
-              className="w-full h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-base rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium text-sm sm:text-base rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
             >
               {isGenerating ? (
                 <div className="flex items-center gap-3">
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
                   <span>Creating magic...</span>
                 </div>
               ) : (
                 <div className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5" />
+                  <Sparkles className="w-4 h-4" />
                   <span>Generate Message</span>
                 </div>
               )}
             </Button>
           </div>
-
-          {/* Output Section */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <div className="bg-white/60 backdrop-blur-xl rounded-3xl sm:rounded-[2rem] border border-slate-200/50 shadow-xl p-6 sm:p-8 transition-all duration-300 hover:shadow-2xl">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900">
-                  Your Message
+          <div className="lg:sticky lg:top-8 h-fit">
+            <div className="bg-white/70 backdrop-blur-2xl rounded-2xl sm:rounded-3xl border border-slate-200/60 shadow-xl p-5 sm:p-6 transition-all duration-300 hover:shadow-2xl hover:border-slate-300/60">
+              <div className="flex items-center justify-between mb-3 sm:mb-4">
+                <h3 className="text-base sm:text-lg font-semibold text-slate-900">
+                  2. Your Generated Message
                 </h3>
                 <Button
                   variant="ghost"
@@ -192,10 +182,9 @@ Best regards`;
                   <Clipboard className="w-4 h-4 text-slate-600" />
                 </Button>
               </div>
-
-              <div className="min-h-[340px] rounded-2xl bg-gradient-to-br from-slate-50 to-white border border-slate-200/50 p-5">
+              <div className="min-h-[340px] rounded-xl sm:rounded-2xl bg-gradient-to-br from-slate-50/80 to-white border border-slate-200/50 p-5 overflow-y-auto">
                 {isGenerating ? (
-                  <div className="flex flex-col items-center justify-center h-full">
+                  <div className="flex flex-col items-center justify-center h-full min-h-[300px]">
                     <div className="relative w-16 h-16 mb-4">
                       <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-20 animate-ping" />
                       <div className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-30 animate-pulse" />
@@ -203,17 +192,17 @@ Best regards`;
                         <Sparkles className="w-6 h-6 text-blue-600 animate-pulse" />
                       </div>
                     </div>
-                    <p className="text-slate-600 text-sm">
-                      Crafting your message...
+                    <p className="text-sm font-medium text-slate-900">
+                      Crafting your message
                     </p>
+                    <p className="text-xs text-slate-500">Please wait...</p>
                   </div>
                 ) : generatedMessage ? (
-                  // MODIFICATION: Improved text appearance
                   <div className="prose prose-slate prose-sm max-w-none text-slate-800 leading-relaxed whitespace-pre-wrap">
                     {generatedMessage}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-center">
+                  <div className="flex flex-col items-center justify-center h-full text-center min-h-[300px]">
                     <div className="w-16 h-16 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-4">
                       {selectedType && (
                         <selectedType.icon

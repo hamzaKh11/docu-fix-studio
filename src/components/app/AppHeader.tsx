@@ -1,4 +1,4 @@
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { Menu, LogOut, FileText, BotMessageSquare, FileUp } from "lucide-react";
@@ -11,16 +11,27 @@ import {
 
 const AppHeader = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/auth"); // Navigate to auth page after sign out
+  };
+
+  // MODIFICATION: Corrected the 'to' paths to match App.tsx routes
   const navLinks = [
-    { to: "/app", text: "CV Builder", icon: <FileUp className="w-4 h-4" /> },
     {
-      to: "/app/optimize-cv",
+      to: "/app/cv-builder",
+      text: "CV Builder",
+      icon: <FileUp className="w-4 h-4" />,
+    },
+    {
+      to: "/app/cv-optimizer",
       text: "Optimize CV",
       icon: <FileText className="w-4 h-4" />,
     },
     {
-      to: "/app/generate-message",
+      to: "/app/message-generator",
       text: "AI Assistant",
       icon: <BotMessageSquare className="w-4 h-4" />,
     },
@@ -35,7 +46,8 @@ const AppHeader = () => {
       <div className="container mx-auto px-4 py-4 flex items-center justify-between">
         {/* Desktop: Logo on the left */}
         <div className="hidden md:flex items-center gap-4">
-          <Link to="/app" className="text-2xl font-bold text-accent">
+          {/* MODIFICATION: Point logo to the default builder page */}
+          <Link to="/app/cv-builder" className="text-2xl font-bold text-accent">
             ATSmooth
           </Link>
         </div>
@@ -50,7 +62,11 @@ const AppHeader = () => {
             </SheetTrigger>
             <SheetContent side="left" className="w-72 p-4">
               <div className="flex justify-between items-center mb-8">
-                <Link to="/app" className="text-2xl font-bold text-accent">
+                {/* MODIFICATION: Point logo to the default builder page */}
+                <Link
+                  to="/app/cv-builder"
+                  className="text-2xl font-bold text-accent"
+                >
                   ATSmooth
                 </Link>
               </div>
@@ -59,9 +75,9 @@ const AppHeader = () => {
                   <SheetClose asChild key={link.to}>
                     <NavLink
                       to={link.to}
-                      end={link.to === "/app"}
+                      // MODIFICATION: Corrected 'end' prop logic
+                      end={link.to === "/app/cv-builder"}
                       className={({ isActive }) =>
-                        // FIX: Added whitespace-nowrap to the flex container itself
                         `flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                           isActive ? activeLinkClass : inactiveLinkClass
                         }`
@@ -79,8 +95,9 @@ const AppHeader = () => {
 
         {/* Mobile: Centered Logo */}
         <div className="md:hidden absolute left-1/2 -translate-x-1/2">
-          <Link to="/app" className="text-2xl font-bold text-accent">
-            CVCraft
+          {/* MODIFICATION: Point logo to the default builder page */}
+          <Link to="/app/cv-builder" className="text-2xl font-bold text-accent">
+            ATSmooth
           </Link>
         </div>
 
@@ -90,9 +107,9 @@ const AppHeader = () => {
             <NavLink
               key={link.to}
               to={link.to}
-              end={link.to === "/app"}
+              // MODIFICATION: Corrected 'end' prop logic
+              end={link.to === "/app/cv-builder"}
               className={({ isActive }) =>
-                // FIX: Added whitespace-nowrap here as well for consistency
                 `flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
                   isActive ? activeLinkClass : inactiveLinkClass
                 }`
@@ -109,7 +126,8 @@ const AppHeader = () => {
           <p className="text-sm text-muted-foreground hidden sm:block whitespace-nowrap">
             {user?.user_metadata.full_name || user?.email}
           </p>
-          <Button variant="outline" size="sm" onClick={signOut}>
+          {/* MODIFICATION: Changed onClick to call handleSignOut */}
+          <Button variant="outline" size="sm" onClick={handleSignOut}>
             <LogOut className="w-4 h-4 sm:mr-2" />
             <span className="hidden sm:inline">Logout</span>
           </Button>
